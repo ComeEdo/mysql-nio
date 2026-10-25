@@ -303,18 +303,18 @@ public struct MySQLData: CustomStringConvertible, ExpressibleByStringLiteral, Ex
                 return nil
             }
             if buffer.readableBytes == 16 {
-            guard let bytes = buffer.readBytes(length: 16) else { return nil }
-            return UUID(uuid: (
-                bytes[0], bytes[1], bytes[2], bytes[3],
-                bytes[4], bytes[5], bytes[6], bytes[7],
-                bytes[8], bytes[9], bytes[10], bytes[11],
-                bytes[12], bytes[13], bytes[14], bytes[15]
-            ))
-        } else if buffer.readableBytes == 36 {
-            return buffer.readString(length: 36).flatMap(UUID.init)
-        } else {
-            return nil
-        }
+                guard let bytes = buffer.readBytes(length: 16) else { return nil }
+                return UUID(uuid: (
+                    bytes[0], bytes[1], bytes[2], bytes[3],
+                    bytes[4], bytes[5], bytes[6], bytes[7],
+                    bytes[8], bytes[9], bytes[10], bytes[11],
+                    bytes[12], bytes[13], bytes[14], bytes[15]
+                ))
+            } else if buffer.readableBytes == 36 {
+                return buffer.readString(length: 36).flatMap(UUID.init)
+            } else {
+                return nil
+            }
         case .text:
             return self.string.flatMap(UUID.init)
         }
