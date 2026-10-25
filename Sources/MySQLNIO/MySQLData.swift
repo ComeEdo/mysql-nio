@@ -185,6 +185,9 @@ public struct MySQLData: CustomStringConvertible, ExpressibleByStringLiteral, Ex
                 return buffer.readString(length: buffer.readableBytes)
             case .longlong, .long, .int24, .short, .tiny, .bit:
                 return self.int?.description
+            case .time:
+                guard let t = self.time, let h = t.hour, let m = t.minute, let s = t.second else { return nil }
+                return String(format: "%02d:%02d:%02d", h, m, s)
             default:
                 return nil
             }
@@ -299,18 +302,19 @@ public struct MySQLData: CustomStringConvertible, ExpressibleByStringLiteral, Ex
             guard var buffer = self.buffer else {
                 return nil
             }
-            guard buffer.readableBytes == 16 else {
-                return nil
-            }
-            guard let bytes = buffer.readBytes(length: 16) else {
-                return nil
-            }
+            if buffer.readableBytes == 16 {
+            guard let bytes = buffer.readBytes(length: 16) else { return nil }
             return UUID(uuid: (
                 bytes[0], bytes[1], bytes[2], bytes[3],
                 bytes[4], bytes[5], bytes[6], bytes[7],
                 bytes[8], bytes[9], bytes[10], bytes[11],
                 bytes[12], bytes[13], bytes[14], bytes[15]
             ))
+        } else if buffer.readableBytes == 36 {
+            return buffer.readString(length: 36).flatMap(UUID.init)
+        } else {
+            return nil
+        }
         case .text:
             return self.string.flatMap(UUID.init)
         }
