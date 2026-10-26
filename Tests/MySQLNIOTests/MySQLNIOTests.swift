@@ -772,4 +772,16 @@ final class MySQLNIOXCTests: XCTestCase {
         XCTAssertNil(rows[0].column("baz")?.int)
         XCTAssertEqual(rows[0].column("qux")?.int, 3)
     }
+
+    func testMySQLUUIDAndTIME() throws {
+        let canonicalUUID = "9107da00-bf8e-4472-a0e3-6ea452f43c96"
+        var uuidBuffer = ByteBufferAllocator().buffer(capacity: 36)
+        uuidBuffer.writeString(canonicalUUID)
+        let uuidData = MySQLData(type: .string, format: .binary, buffer: uuidBuffer, isUnsigned: false)
+        XCTAssertEqual(uuidData.uuid?.uuidString.lowercased(), canonicalUUID)
+        
+        let time = MySQLTime(isNegative: false, days: 0, hour: 14, minute: 30, second: 15, microsecond: 0)
+        let timeData = MySQLData(time: time)
+        XCTAssertEqual(timeData.string, "14:30:15")
+    }
 }
